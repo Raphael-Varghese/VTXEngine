@@ -62,29 +62,40 @@ with open("engine/audio/audio_player.py", "r") as f:
     exec(f.read(), audio_globals)
 AudioPlayer = audio_globals["AudioPlayer"]
 
+# Load ScriptEngine
+script_globals = {}
+with open("engine/scripting/script_engine.py", "r") as f:
+    exec(f.read(), script_globals)
+ScriptEngine = script_globals["ScriptEngine"]
+
 # Begin simulation
 logger.info("VTXEngine Booting...")
 
-# Audio system
-audio = AudioPlayer()
+# Scripting system
+script_engine = ScriptEngine()
 
-# Audio component
-class AudioComponent(Component):
-    def __init__(self, player):
-        super().__init__("AudioComponent")
-        self.player = player
+# Scripting component
+class ScriptComponent(Component):
+    def __init__(self, engine, script_text):
+        super().__init__("ScriptComponent")
+        self.engine = engine
+        self.script_text = script_text
 
     def update(self):
-        self.player.play_sound("jump.wav")
-        self.player.play_sound("pickup_coin.wav")
-        self.player.update(logger)
+        self.engine.run_script(self.script_text, logger)
 
-# Create entity with audio
-player = Entity("Player")
-player.add_component(AudioComponent(audio))
+# Create entity with script
+script = """
+x = 5
+y = 10
+logger.info(f'[Script] x + y = {x + y}')
+"""
+
+npc = Entity("NPC")
+npc.add_component(ScriptComponent(script_engine, script))
 
 # Simulate frame
-logger.info(f"Scene contains: {player}")
-player.update()
+logger.info(f"Scene contains: {npc}")
+npc.update()
 
 logger.info("VTXEngine Shutdown.")
