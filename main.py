@@ -72,7 +72,7 @@ ScriptEngine = script_globals["ScriptEngine"]
 logger.info("VTXEngine Booting...")
 
 # Scripting system
-script_engine = ScriptEngine()
+script_engine = ScriptEngine(logger)
 
 # Scripting component
 class ScriptComponent(Component):
