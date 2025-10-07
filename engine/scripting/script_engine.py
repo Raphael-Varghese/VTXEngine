@@ -1,6 +1,6 @@
 class ScriptEngine:
-    def __init__(self):
-        self.context = {}
+    def __init__(self, logger):
+        self.context = {"logger": logger}  # Inject logger into script context
 
     def run_script(self, script_text, logger):
         try:
