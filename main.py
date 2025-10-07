@@ -26,6 +26,12 @@ with open("engine/math/vector3.py", "r") as f:
     exec(f.read(), vector3_globals)
 Vector3 = vector3_globals["Vector3"]
 
+# Load Rasterizer
+rasterizer_globals = {}
+with open("engine/graphics/rasterizer.py", "r") as f:
+    exec(f.read(), rasterizer_globals)
+Rasterizer = rasterizer_globals["Rasterizer"]
+
 # Begin simulation
 logger.info("VTXEngine Booting...")
 
@@ -42,5 +48,14 @@ v4 = Vector3(1, 0, 0)
 v5 = Vector3(0, 1, 0)
 v6 = v4.cross(v5)
 logger.info(f"Vector3 Cross Product: {v4} x {v5} = {v6}")
+
+# Rasterizer demo
+r = Rasterizer()
+r.clear()
+r.draw_line(0, 0, 39, 19)
+r.draw_line(0, 19, 39, 0)
+r.draw_pixel(20, 10, "#")
+logger.info("Rendering to terminal:")
+r.render()
 
 logger.info("VTXEngine Shutdown.")
