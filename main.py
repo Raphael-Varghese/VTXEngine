@@ -56,45 +56,32 @@ with open("engine/ui/ui_renderer.py", "r") as f:
     exec(f.read(), ui_globals)
 UIRenderer = ui_globals["UIRenderer"]
 
+# Load AudioPlayer
+audio_globals = {}
+with open("engine/audio/audio_player.py", "r") as f:
+    exec(f.read(), audio_globals)
+AudioPlayer = audio_globals["AudioPlayer"]
+
 # Begin simulation
 logger.info("VTXEngine Booting...")
 
-# Input system
-input_handler = InputHandler()
-input_handler.simulate_key_press("W")
+# Audio system
+audio = AudioPlayer()
 
-# UI system
-ui = UIRenderer()
-ui.add_element("Health: 100")
-ui.add_element("Ammo: 30")
-ui.add_element("Press [W] to move forward")
-
-# Input component
-class InputComponent(Component):
-    def __init__(self, handler):
-        super().__init__("InputComponent")
-        self.handler = handler
+# Audio component
+class AudioComponent(Component):
+    def __init__(self, player):
+        super().__init__("AudioComponent")
+        self.player = player
 
     def update(self):
-        key = self.handler.get_key()
-        if key:
-            logger.info(f"[Input] Key '{key}' was pressed")
-            self.handler.clear()
+        self.player.play_sound("jump.wav")
+        self.player.play_sound("pickup_coin.wav")
+        self.player.update(logger)
 
-# UI component
-class UIComponent(Component):
-    def __init__(self, renderer):
-        super().__init__("UIComponent")
-        self.renderer = renderer
-
-    def update(self):
-        self.renderer.render()
-        self.renderer.clear()
-
-# Create entity with input and UI
+# Create entity with audio
 player = Entity("Player")
-player.add_component(InputComponent(input_handler))
-player.add_component(UIComponent(ui))
+player.add_component(AudioComponent(audio))
 
 # Simulate frame
 logger.info(f"Scene contains: {player}")
