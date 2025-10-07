@@ -76,25 +76,22 @@ with open("engine/assets/asset_manager.py", "r") as f:
 AssetManager = asset_globals["AssetManager"]
 assets = AssetManager()
 
+# Load NetworkSimulator
+network_globals = {}
+with open("engine/network/network_simulator.py", "r") as f:
+    exec(f.read(), network_globals)
+NetworkSimulator = network_globals["NetworkSimulator"]
+network = NetworkSimulator()
+
 # Begin simulation
 logger.info("VTXEngine Booting...")
 
-# Save a script asset
-script_code = "print('[Asset Script] Hello from asset script')"
-assets.save_asset("scripts", "hello_script.txt", script_code)
+# Simulate client sending message
+network.send_to_server("Player joined the game")
+network.send_to_server("Player moved to (10, 5)")
 
-# Load and run the script
-loaded_script = assets.load_asset("scripts", "hello_script.txt")
-if loaded_script:
-    logger.info("[Asset] Loaded script content:")
-    logger.info(loaded_script)
-    try:
-        exec(loaded_script)
-    except Exception as e:
-        logger.error(f"[Asset] Script execution error: {e}")
-
-# List available scripts
-script_list = assets.list_assets("scripts")
-logger.info(f"[Asset] Available scripts: {script_list}")
+# Process server and client queues
+network.process_server(logger)
+network.process_client(logger)
 
 logger.info("VTXEngine Shutdown.")
