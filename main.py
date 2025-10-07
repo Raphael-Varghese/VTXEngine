@@ -44,24 +44,59 @@ with open("engine/scene/entity.py", "r") as f:
     exec(f.read(), entity_globals)
 Entity = entity_globals["Entity"]
 
+# Load InputHandler
+input_globals = {}
+with open("engine/input/input_handler.py", "r") as f:
+    exec(f.read(), input_globals)
+InputHandler = input_globals["InputHandler"]
+
+# Load UIRenderer
+ui_globals = {}
+with open("engine/ui/ui_renderer.py", "r") as f:
+    exec(f.read(), ui_globals)
+UIRenderer = ui_globals["UIRenderer"]
+
 # Begin simulation
 logger.info("VTXEngine Booting...")
 
-# Create a custom component
-class PrintComponent(Component):
-    def __init__(self, message):
-        super().__init__("PrintComponent")
-        self.message = message
+# Input system
+input_handler = InputHandler()
+input_handler.simulate_key_press("W")
+
+# UI system
+ui = UIRenderer()
+ui.add_element("Health: 100")
+ui.add_element("Ammo: 30")
+ui.add_element("Press [W] to move forward")
+
+# Input component
+class InputComponent(Component):
+    def __init__(self, handler):
+        super().__init__("InputComponent")
+        self.handler = handler
 
     def update(self):
-        logger.info(f"[Component] {self.message}")
+        key = self.handler.get_key()
+        if key:
+            logger.info(f"[Input] Key '{key}' was pressed")
+            self.handler.clear()
 
-# Create an entity and attach components
+# UI component
+class UIComponent(Component):
+    def __init__(self, renderer):
+        super().__init__("UIComponent")
+        self.renderer = renderer
+
+    def update(self):
+        self.renderer.render()
+        self.renderer.clear()
+
+# Create entity with input and UI
 player = Entity("Player")
-player.add_component(PrintComponent("Player is updating..."))
-player.add_component(PrintComponent("Player is rendering..."))
+player.add_component(InputComponent(input_handler))
+player.add_component(UIComponent(ui))
 
-# Simulate scene update
+# Simulate frame
 logger.info(f"Scene contains: {player}")
 player.update()
 
