@@ -1,13 +1,13 @@
 import time
 
-# Load logger
+# Load Logger
 logger_globals = {}
 with open("engine/core/logger.py", "r") as f:
     exec(f.read(), logger_globals)
 Logger = logger_globals["Logger"]
 logger = Logger()
 
-# Load timer
+# Load Timer
 timer_globals = {}
 with open("engine/core/timer.py", "r") as f:
     exec(f.read(), timer_globals)
@@ -67,35 +67,34 @@ script_globals = {}
 with open("engine/scripting/script_engine.py", "r") as f:
     exec(f.read(), script_globals)
 ScriptEngine = script_globals["ScriptEngine"]
+script_engine = ScriptEngine(logger)
+
+# Load AssetManager
+asset_globals = {}
+with open("engine/assets/asset_manager.py", "r") as f:
+    exec(f.read(), asset_globals)
+AssetManager = asset_globals["AssetManager"]
+assets = AssetManager()
 
 # Begin simulation
 logger.info("VTXEngine Booting...")
 
-# Scripting system
-script_engine = ScriptEngine(logger)
+# Save a script asset
+script_code = "print('[Asset Script] Hello from asset script')"
+assets.save_asset("scripts", "hello_script.txt", script_code)
 
-# Scripting component
-class ScriptComponent(Component):
-    def __init__(self, engine, script_text):
-        super().__init__("ScriptComponent")
-        self.engine = engine
-        self.script_text = script_text
+# Load and run the script
+loaded_script = assets.load_asset("scripts", "hello_script.txt")
+if loaded_script:
+    logger.info("[Asset] Loaded script content:")
+    logger.info(loaded_script)
+    try:
+        exec(loaded_script)
+    except Exception as e:
+        logger.error(f"[Asset] Script execution error: {e}")
 
-    def update(self):
-        self.engine.run_script(self.script_text, logger)
-
-# Create entity with script
-script = """
-x = 5
-y = 10
-logger.info(f'[Script] x + y = {x + y}')
-"""
-
-npc = Entity("NPC")
-npc.add_component(ScriptComponent(script_engine, script))
-
-# Simulate frame
-logger.info(f"Scene contains: {npc}")
-npc.update()
+# List available scripts
+script_list = assets.list_assets("scripts")
+logger.info(f"[Asset] Available scripts: {script_list}")
 
 logger.info("VTXEngine Shutdown.")
