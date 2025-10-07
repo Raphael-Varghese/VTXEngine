@@ -32,30 +32,37 @@ with open("engine/graphics/rasterizer.py", "r") as f:
     exec(f.read(), rasterizer_globals)
 Rasterizer = rasterizer_globals["Rasterizer"]
 
+# Load Component
+component_globals = {}
+with open("engine/scene/component.py", "r") as f:
+    exec(f.read(), component_globals)
+Component = component_globals["Component"]
+
+# Load Entity
+entity_globals = {}
+with open("engine/scene/entity.py", "r") as f:
+    exec(f.read(), entity_globals)
+Entity = entity_globals["Entity"]
+
 # Begin simulation
 logger.info("VTXEngine Booting...")
 
-# Vector2 demo
-v1 = Vector2(3, 4)
-v2 = Vector2(1, 2)
-v3 = v1 + v2
-logger.info(f"Vector2 Addition: {v1} + {v2} = {v3}")
-logger.info(f"Vector2 Magnitude of {v1}: {v1.magnitude():.2f}")
-logger.info(f"Vector2 Normalized: {v1.normalize()}")
+# Create a custom component
+class PrintComponent(Component):
+    def __init__(self, message):
+        super().__init__("PrintComponent")
+        self.message = message
 
-# Vector3 demo
-v4 = Vector3(1, 0, 0)
-v5 = Vector3(0, 1, 0)
-v6 = v4.cross(v5)
-logger.info(f"Vector3 Cross Product: {v4} x {v5} = {v6}")
+    def update(self):
+        logger.info(f"[Component] {self.message}")
 
-# Rasterizer demo
-r = Rasterizer()
-r.clear()
-r.draw_line(0, 0, 39, 19)
-r.draw_line(0, 19, 39, 0)
-r.draw_pixel(20, 10, "#")
-logger.info("Rendering to terminal:")
-r.render()
+# Create an entity and attach components
+player = Entity("Player")
+player.add_component(PrintComponent("Player is updating..."))
+player.add_component(PrintComponent("Player is rendering..."))
+
+# Simulate scene update
+logger.info(f"Scene contains: {player}")
+player.update()
 
 logger.info("VTXEngine Shutdown.")
