@@ -83,15 +83,32 @@ with open("engine/network/network_simulator.py", "r") as f:
 NetworkSimulator = network_globals["NetworkSimulator"]
 network = NetworkSimulator()
 
+# Load EditorUI
+editor_globals = {}
+with open("engine/editor/editor_ui.py", "r") as f:
+    exec(f.read(), editor_globals)
+EditorUI = editor_globals["EditorUI"]
+editor = EditorUI()
+
 # Begin simulation
 logger.info("VTXEngine Booting...")
 
-# Simulate client sending message
-network.send_to_server("Player joined the game")
-network.send_to_server("Player moved to (10, 5)")
+# Create sample entity
+player = Entity("Player")
 
-# Process server and client queues
-network.process_server(logger)
-network.process_client(logger)
+# Add dummy components
+class DummyComponent(Component):
+    def __init__(self, name):
+        super().__init__(name)
+
+player.add_component(DummyComponent("Transform"))
+player.add_component(DummyComponent("Renderer"))
+player.add_component(DummyComponent("Collider"))
+
+# Add entity to editor
+editor.add_entity(player)
+
+# Render editor UI
+editor.render(logger)
 
 logger.info("VTXEngine Shutdown.")
